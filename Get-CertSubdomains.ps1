@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     This script queries crt.sh for SSL certificate records and extracts unique subdomains.
-    The results are sorted and displayed, and optionally saved to a file.
+    The results are cleaned, deduplicated, sorted, and optionally saved to a file.
 
 .PARAMETER Domain
     The target domain to search for subdomains.
@@ -13,8 +13,8 @@
     (Optional) The path to an output file where subdomains will be saved.
 
 .EXAMPLE
-    .\Get-CertSubdomains.ps1 -Domain temphack.org
-    .\Get-CertSubdomains.ps1 -Domain temphack.org -File subdomains.txt
+    .\Get-CertSubdomains.ps1 -Domain example.com
+    .\Get-CertSubdomains.ps1 -Domain example.com -File subdomains.txt
 #>
 
 param (
@@ -27,25 +27,28 @@ param (
 
 # Encode the domain for crt.sh query
 $encodedDomain = "%25." + $Domain
-
-# Construct the URL
 $url = "https://crt.sh/?q=$encodedDomain&output=json"
 
 Write-Host "`n[+] Fetching subdomains for: $Domain" -ForegroundColor Green
 
 try {
-    # Send request to crt.sh
     $crtshData = Invoke-RestMethod -Uri $url -ErrorAction Stop
 
-    # Extract and sort unique subdomains
-    $subdomains = $crtshData | ForEach-Object { $_.name_value } | Sort-Object -Unique
+    $subdomains = $crtshData |
+        ForEach-Object { $_.name_value -split "`n" } |
+        ForEach-Object { $_.Trim().ToLower() } |
+        Where-Object {
+            $_ -and
+            ($_ -notmatch '^[^@\s]+@[^@\s]+\.[^@\s]+$') -and    # exclude email addresses
+            ($_ -like "*.$Domain" -or $_ -eq $Domain -or $_ -like "*.*.$Domain" -or $_ -like "*$Domain") -and
+            ($_ -match '^[*a-z0-9.-]+$')                        # basic domain pattern
+        } |
+        Sort-Object -Unique
 
-    # Display results
     if ($subdomains) {
         Write-Host "[+] Found subdomains:" -ForegroundColor Cyan
         $subdomains | ForEach-Object { Write-Host $_ }
 
-        # Save to file if specified
         if ($File) {
             $subdomains | Out-File -FilePath $File -Encoding UTF8
             Write-Host "[+] Subdomains saved to $File" -ForegroundColor Green
