@@ -1,60 +1,30 @@
 # PowerShell Scripts by Krikas-Sec
 
-Welcome to my collection of PowerShell scripts — crafted to automate tasks, manage systems, and enhance productivity on Windows. These scripts are part of my continuous learning and development in system administration and cybersecurity.
+Welcome to the **PowerShell-Scripts** repo! This is a collection of tools and utilities for security professionals, sysadmins, and PowerShell learners.
 
-## 📂 Repository Structure
+## 🔍 Recon-Tools
+Scripts to assist with reconnaissance, passive and active scanning for bug bounty hunting and pentesting.
 
-C:\Temp\Dev\PowerShell
-├── Script1.ps1 
-├── Script2.ps1 
-└── ...
+- [`Get-CertSubdomains.ps1`](Recon-Tools/Get-CertSubdomains.ps1) — Enumerate subdomains from SSL certificates
+- [`Resolve-ValidSubdomains.ps1`](Recon-Tools/Resolve-ValidSubdomains.ps1) — DNS resolution with rate-limiting
+- [`Test-LiveSubdomains.ps1`](Recon-Tools/Test-LiveSubdomains.ps1) — Check HTTP/HTTPS services and collect fingerprints
+- [`Generate-HTMLReport.ps1`](Recon-Tools/Generate-HTMLReport.ps1) — Create dark-themed interactive recon reports
 
+## ⚙️ System-Automation
+Useful scripts to help automate system-level tasks and workflows. *(Coming soon)*
 
-Each script is well-documented with inline comments and designed to be beginner-friendly, yet powerful enough for advanced use cases.
+## 🔵 Security-Hardening
+Scripts aimed at improving system security or auditing configurations. *(Coming soon)*
 
-## 🔧 What You'll Find Here
+## 🧪 Learning-Lab
+PowerShell practice scripts and learning tools for experimenting and mastering scripting.
 
-- 🔍 Recon and scanning tools
-- ⚙️ System automation scripts
-- 🛡️ Security hardening helpers
-- 🧪 Scripts for testing and learning PowerShell
+- [`whatweb.ps1`](Learning-Lab/whatweb.ps1) — Wrapper for Ruby WhatWeb, runs from PowerShell
 
-## 🚀 How to Use
+---
 
-1. Clone the repository:
-   ```bash
-   git clone git@github.com:Krikas-Sec/PowerShell-Scripts.git
-   ```
+Each folder includes its own `README.md` file for deeper context and usage examples. Want to contribute? Pull requests are welcome!
 
-2. Navigate to the script directory:
-```bash
-cd PowerShell-Scripts
-```
-
-3. Run any script using:
-
-```powershell
-.\ScriptName.ps1
-```
-
-Make sure your Execution Policy allows script execution:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-## 📌 Notes
-Always review scripts before running.
-
-Modify paths and variables as needed for your environment.
-
-Tested on Windows 10/11 with PowerShell 5.1+ and PowerShell 7+.
-
-## 📬 Feedback and Contributions
-Got a better way to write a script? Open an issue or pull request! I'm always learning.
-
-🔗 Follow my journey in sysadmin, automation, and ethical hacking:
-
-GitHub: Krikas-Sec
-
-Blog: https://tempcodertech.org
+**Author:** [Krikas-Sec](https://github.com/Krikas-Sec)
 
 License: MIT
