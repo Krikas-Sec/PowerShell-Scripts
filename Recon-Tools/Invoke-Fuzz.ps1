@@ -1,12 +1,16 @@
 <#
 .SYNOPSIS
-    PowerShell-based Gobuster-style fuzzing for hidden files and directories.
+    PowerShell-based Gobuster-style fuzzing tool for discovering hidden directories and files.
+
+.DESCRIPTION
+    Scans a target URL using a wordlist to identify accessible and forbidden paths.
+    Supports optional file extensions, rate limiting, status code filtering, and logging.
 
 .PARAMETER Url
     The base URL to fuzz (e.g., https://example.com)
 
 .PARAMETER Wordlist
-    Path to a wordlist file.
+    Path to the wordlist file used for fuzzing
 
 .PARAMETER RateLimit
     Requests per second (default: 5)
@@ -15,7 +19,7 @@
     HTTP status codes to show (default: 200,403)
 
 .PARAMETER LogPath
-    Optional path to save matching results (full URLs). If not set, results will not be logged.
+    Optional path to save matching results (full URLs)
 
 .PARAMETER Extensions
     Optional file extensions to append to each word (e.g., .php, .html)
@@ -37,28 +41,24 @@ param (
     [string[]]$Extensions
 )
 
+# Load wordlist
 $words = Get-Content -Path $Wordlist
 $totalWords = $words.Count
 $totalRequests = $totalWords * (1 + ($Extensions.Count))
 $count = 0
 $found = @{}
 $results = @()
+
+# Initialize tracking for each status code
 foreach ($code in $ShowCodes) { $found[$code] = 0 }
 
-# Track time
+# Timing and rate limiting
 $startTime = Get-Date
-
-# Rate limit delay
 $delay = if ($RateLimit -le 0) { 0 } else { [math]::Ceiling(1000 / $RateLimit) }
-
-# Estimated scan time
 $estimatedSeconds = if ($RateLimit -le 0) { 0 } else { [math]::Ceiling($totalRequests / $RateLimit) }
 $estimatedTimeSpan = [System.TimeSpan]::FromSeconds($estimatedSeconds)
 
-
-
-
-# Prepare log
+# Prepare logging file
 if ($LogPath) {
     if (Test-Path $LogPath) {
         Clear-Content $LogPath
@@ -70,13 +70,11 @@ if ($LogPath) {
 $lastUpdate = Get-Date
 $updateIntervalSec = 1
 
+# Function to render dashboard
 function Show-Dashboard {
     Clear-Host
-    
     Write-Host "=============================================================" -ForegroundColor Cyan
-    Write-Host ""
     Write-Host "                  PowerHack Fuzzing Stats" -ForegroundColor Cyan
-    Write-Host "               "
     Write-Host "=============================================================" -ForegroundColor Cyan
     Write-Host " Target              : $Url"
     Write-Host " Wordlist            : $Wordlist ($totalWords words)"
@@ -86,24 +84,28 @@ function Show-Dashboard {
     Write-Host " Total Requests      : $totalRequests"
     Write-Host " Estimated scan time : $($estimatedTimeSpan.ToString())"
     Write-Host " Progress            : $count / $totalRequests"
-    foreach ($code in $ShowCodes) {
+
+    foreach ($code in ($found.Keys | Sort-Object)) {
         Write-Host (" Status {0}          : {1} found" -f $code, $found[$code])
     }
+
     $elapsed = (Get-Date) - $startTime
     Write-Host " Elapsed Time        : $($elapsed.ToString())"
     Write-Host "=============================================================" -ForegroundColor Cyan
     Write-Host "                 ONGOING SCAN - STAY SHARP!" -ForegroundColor Cyan
     Write-Host "=============================================================" -ForegroundColor Cyan
+
     if ($results.Count -gt 0) {
         Write-Host " Findings:" -ForegroundColor Green
         foreach ($res in $results[-10..-1]) {
-            Write-Host " [$($res.Index)/$totalRequests] $($res.Path) (Status: $($res.Status), Size: $($res.Size))" -ForegroundColor Green
+            $color = if ($res.Status -eq 403) { 'Yellow' } elseif ($res.Status -eq 200) { 'Green' } else { 'Gray' }
+            Write-Host " [$($res.Index)/$totalRequests] $($res.Path) (Status: $($res.Status), Size: $($res.Size))" -ForegroundColor $color
         }
         Write-Host "=============================================================" -ForegroundColor Cyan
-        
     }
 }
 
+# Begin fuzzing
 foreach ($word in $words) {
     $targets = @([PSCustomObject]@{ Url = "$Url/$word"; Path = "/$word" })
     if ($Extensions) {
@@ -120,6 +122,7 @@ foreach ($word in $words) {
             $size = $response.RawContentLength
 
             if ($ShowCodes -contains $status) {
+                if (-not $found.ContainsKey($status)) { $found[$status] = 0 }
                 $found[$status]++
                 $results += [PSCustomObject]@{
                     Index  = $count
@@ -128,6 +131,7 @@ foreach ($word in $words) {
                     Size   = $size
                 }
                 Write-Host "[$count/$totalRequests] $($target.Path) (Status: $status, Size: $size)" -ForegroundColor Green
+
                 if ($LogPath) {
                     $entry = [PSCustomObject]@{
                         URL    = $target.Url
@@ -138,23 +142,29 @@ foreach ($word in $words) {
                 }
             }
         } catch {
-            if ($_.Exception.Response -and ($ShowCodes -contains $_.Exception.Response.StatusCode)) {
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
                 $errCode = $_.Exception.Response.StatusCode
-                $found[$errCode]++
-                $results += [PSCustomObject]@{
-                    Index  = $count
-                    Path   = $target.Path
-                    Status = $errCode
-                    Size   = 0
-                }
-                Write-Host "[$count/$totalRequests] $($target.Path) (Status: $errCode)" -ForegroundColor Yellow
-                if ($LogPath) {
-                    $entry = [PSCustomObject]@{
-                        URL    = $target.Url
+
+                if ($ShowCodes -contains $errCode) {
+                    if (-not $found.ContainsKey($errCode)) { $found[$errCode] = 0 }
+                    $found[$errCode]++
+                    $results += [PSCustomObject]@{
+                        Index  = $count
+                        Path   = $target.Path
                         Status = $errCode
-                        Length = 0
+                        Size   = 0
                     }
-                    $entry | ConvertTo-Json -Compress | Add-Content -Path $LogPath
+                    $color = if ($errCode -eq 403) { 'Yellow' } elseif ($errCode -eq 200) { 'Green' } else { 'Gray' }
+                    Write-Host "[$count/$totalRequests] $($target.Path) (Status: $errCode)" -ForegroundColor $color
+
+                    if ($LogPath) {
+                        $entry = [PSCustomObject]@{
+                            URL    = $target.Url
+                            Status = $errCode
+                            Length = 0
+                        }
+                        $entry | ConvertTo-Json -Compress | Add-Content -Path $LogPath
+                    }
                 }
             }
         }
@@ -170,17 +180,14 @@ foreach ($word in $words) {
     }
 }
 
+# Final report
 $endTime = Get-Date
 $duration = $endTime - $startTime
 Write-Progress -Activity "Fuzzing..." -Completed
-Write-Host ""
 Write-Host "[*] Fuzzing complete." -ForegroundColor Cyan
-
-Write-Host @"
-=============================================================
-       Scan session closed. Results summary:
-"@ -ForegroundColor DarkCyan
-foreach ($code in $ShowCodes) {
+Write-Host "=============================================================" -ForegroundColor DarkCyan
+Write-Host "       Scan session closed. Results summary:" -ForegroundColor DarkCyan
+foreach ($code in ($found.Keys | Sort-Object)) {
     Write-Host "       HTTP ${code}: $($found[$code]) found"
 }
 Write-Host "       Total time: $($duration.ToString())"
