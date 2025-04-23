@@ -28,7 +28,7 @@ Tests which subdomains are alive over HTTP/HTTPS, logs fingerprints and HTTP hea
   - `fingerprints.json`
 - **Usage**:
   ```powershell
-  .\Test-LiveSubdomains.ps1 -Path "subdomains.txt" -File "live_domains.txt" -RateLimit 5
+  .\Test-LiveSubdomains.ps1 -Path "subdomains.txt" -Output "live_domains.txt" -RateLimit 5
   ```
 
 ---

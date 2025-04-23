@@ -20,7 +20,7 @@ param (
     [string]$Path,
 
     [Parameter(Mandatory = $true)]
-    [string]$File,
+    [string]$Output,
 
     [int]$TimeoutSec = 5,
 
@@ -28,9 +28,9 @@ param (
 )
 
 # Output files
-$liveOut = $File
-$unreachableOut = [System.IO.Path]::Combine((Split-Path $File), "unreachable_domains.txt")
-$jsonOut = [System.IO.Path]::Combine((Split-Path $File), "fingerprints.json")
+$liveOut = $Output
+$unreachableOut = [System.IO.Path]::Combine((Split-Path $Output), "unreachable_domains.txt")
+$jsonOut = [System.IO.Path]::Combine((Split-Path $Output), "fingerprints.json")
 $fingerprintList = @()
 $headers = @{ 'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
 

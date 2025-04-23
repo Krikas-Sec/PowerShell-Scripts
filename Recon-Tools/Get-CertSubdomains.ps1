@@ -14,7 +14,7 @@
 
 .EXAMPLE
     .\Get-CertSubdomains.ps1 -Domain example.com
-    .\Get-CertSubdomains.ps1 -Domain example.com -File subdomains.txt
+    .\Get-CertSubdomains.ps1 -Domain example.com -Output subdomains.txt
 #>
 
 param (
@@ -22,7 +22,7 @@ param (
     [string]$Domain,
 
     [Parameter(Mandatory = $false, HelpMessage = "Optional output file to save subdomains")]
-    [string]$File
+    [string]$Output
 )
 
 # Encode the domain for crt.sh query
@@ -49,9 +49,9 @@ try {
         Write-Host "[+] Found subdomains:" -ForegroundColor Cyan
         $subdomains | ForEach-Object { Write-Host $_ }
 
-        if ($File) {
-            $subdomains | Out-File -FilePath $File -Encoding UTF8
-            Write-Host "[+] Subdomains saved to $File" -ForegroundColor Green
+        if ($Output) {
+            $subdomains | Out-File -FilePath $Output -Encoding UTF8
+            Write-Host "[+] Subdomains saved to $Output" -ForegroundColor Green
         }
     } else {
         Write-Host "[!] No subdomains found." -ForegroundColor Yellow

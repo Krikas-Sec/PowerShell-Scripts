@@ -1,0 +1,94 @@
+[
+  {
+    "URL": "https://lab.temphack.org",
+    "Status": 200,
+    "Server": [
+      "gunicorn"
+    ],
+    "XPoweredBy": null,
+    "ContentType": [
+      "text/html; charset=utf-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:37"
+  },
+  {
+    "URL": "http://lab.temphack.org",
+    "Status": 200,
+    "Server": [
+      "gunicorn"
+    ],
+    "XPoweredBy": null,
+    "ContentType": [
+      "text/html; charset=utf-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:37"
+  },
+  {
+    "URL": "https://temphack.org",
+    "Status": 200,
+    "Server": [
+      "nginx"
+    ],
+    "XPoweredBy": [
+      "PHP/8.3.19"
+    ],
+    "ContentType": [
+      "text/html; charset=UTF-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:40"
+  },
+  {
+    "URL": "http://temphack.org",
+    "Status": 200,
+    "Server": [
+      "nginx"
+    ],
+    "XPoweredBy": [
+      "PHP/8.3.19"
+    ],
+    "ContentType": [
+      "text/html; charset=UTF-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:42"
+  },
+  {
+    "URL": "https://www.temphack.org",
+    "Status": 200,
+    "Server": [
+      "nginx"
+    ],
+    "XPoweredBy": [
+      "PHP/8.3.19"
+    ],
+    "ContentType": [
+      "text/html; charset=UTF-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:43"
+  },
+  {
+    "URL": "http://www.temphack.org",
+    "Status": 200,
+    "Server": [
+      "nginx"
+    ],
+    "XPoweredBy": [
+      "PHP/8.3.19"
+    ],
+    "ContentType": [
+      "text/html; charset=UTF-8"
+    ],
+    "ContentLength": null,
+    "SetCookie": null,
+    "Timestamp": "2025-04-23T21:01:45"
+  }
+]
